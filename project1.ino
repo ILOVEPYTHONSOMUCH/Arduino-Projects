@@ -1,5 +1,5 @@
 /*
- * CODING : MacTheHacker 
+ * CODING : CoderMan
  * Humidity and Temperature program
  * Temidity 1.0
 */
