@@ -17,7 +17,7 @@ void setup() {
    lcd.setCursor(0, 0);
    lcd.print("[Temidity 1.0]");
    lcd.setCursor(0, 1);
-   lcd.print("MacTheHacker");
+   lcd.print("CoderMan");
    delay(4000);
    Serial.begin(9600); //เริ่มต้น output
    dht.begin();  // เริ่มต้น sensor
