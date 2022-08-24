@@ -7,11 +7,11 @@
 #define IN1 2
 #define IN2 3
 #define IN3 4
-#define IN4 5
-#define ir_one 6 
-#define ir_two 7 
-bool check_in_front_of = false;
-NewPing distance (10, 11, 400);
+#define IN4 5 
+#define ir_one 8
+#define ir_two 9
+#define FRONT_CHECK A0
+NewPing distance (10, 11, 80);
 void setup()
 {
   pinMode(ir_one, INPUT);
@@ -20,24 +20,45 @@ void setup()
   pinMode(IN2, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-  //pinMode(speedA,OUTPUT);
-  //pinMode(speedB,OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop()
 {
-   if (digitalRead(ir_one) == LOW){
+   int distance2 = distance.ping_cm();
+   Serial.println(distance2);
+   if (distance2 < 200 && distance2 != 0){
+     while (distance2 <= 200){
+     int check = blackorwhite();
+     if (check == 0){
+      if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == LOW){
       forwardComand();
+       }
+      if (digitalRead(ir_one) == HIGH && digitalRead(ir_two) == HIGH){
+      forwardComand();
+       }
+     else if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == HIGH){
+     Serial.print("left");
+       leftComand();
     }
-    else{
-         reset();
+    else if (digitalRead(ir_one) == HIGH && digitalRead(ir_two) == LOW){
+     Serial.print("right");
+       rightComand();
+   }
+     }
+     if (check==1){
+        reverseComand();
+        delay(1000);
+     }}
     }
 }
-void checkdistance(){ //Ultra Sonic Sensor
- distance = distance.ping_cm();
- if (distance < 25){
-     // to do
-     bool check_in_front_of = true;
+int blackorwhite(){
+   int blackorwhite = analogRead(FRONT_CHECK);
+     if (blackorwhite > 600) { 
+    return 0; 
+    }
+  else {
+   return 1;
   }
 }
 void following(){ // following system
@@ -45,10 +66,12 @@ void following(){ // following system
       forwardComand();
    }
   else if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == HIGH){
+    Serial.print("left");
       leftComand();
    }
   else if (digitalRead(ir_one) == HIGH && digitalRead(ir_two) == LOW){
-      rightComand();
+    Serial.print("right");
+       rightComand();
    }
     else{
          reset();
