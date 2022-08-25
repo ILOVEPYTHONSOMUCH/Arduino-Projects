@@ -11,7 +11,9 @@
 #define ir_one 8
 #define ir_two 9
 #define FRONT_CHECK A0
-NewPing distance (10, 11, 80);
+#define BACK_CHECK A1
+bool is_detect = false;
+NewPing distance (10, 11, 100);
 void setup()
 {
   pinMode(ir_one, INPUT);
@@ -24,59 +26,55 @@ void setup()
 }
 
 void loop()
-{
-   int distance2 = distance.ping_cm();
-   Serial.println(distance2);
-   if (distance2 < 200 && distance2 != 0){
-     while (distance2 <= 200){
-     int check = blackorwhite();
-     if (check == 0){
+{  
+  int duration = distance.ping_cm();
+  Serial.println(duration);
+  while (duration < 100 && duration != 0){
+    forwardComand();
+    Serial.print("blackorwhite() : ");
+    Serial.println(blackorwhite());
+    if (blackorwhite() == 0){
+       following();
+    }
+     if (blackorwhite() == 1){
+       reverseComand();
+       delay(1200);
+    }
+    if (blackorwhite() == 2){
+       forwardComand();
+       delay(1200);
+    }
+    duration = distance.ping_cm();
+  }
+}
+int blackorwhite(){
+   int blackorwhite1 = analogRead(FRONT_CHECK);
+   int blackorwhite2 = analogRead(BACK_CHECK);
+   Serial.print("BACK_CHECK : ");
+   Serial.println(blackorwhite2);
+   if (blackorwhite1 >= 600 && blackorwhite2 >= 600) { 
+    return 0; 
+    }
+   else if (blackorwhite1 <= 600 && blackorwhite2 >= 600) { 
+    return 1; 
+    }
+   else if (blackorwhite1 >= 600 && blackorwhite2 <= 600) { 
+    return 2; 
+    }
+}
+void following(){ // following system
       if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == LOW){
-      forwardComand();
+        forwardComand();
        }
       if (digitalRead(ir_one) == HIGH && digitalRead(ir_two) == HIGH){
       forwardComand();
        }
      else if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == HIGH){
-     Serial.print("left");
        leftComand();
     }
     else if (digitalRead(ir_one) == HIGH && digitalRead(ir_two) == LOW){
-     Serial.print("right");
        rightComand();
    }
-     }
-     if (check==1){
-        reverseComand();
-        delay(1000);
-     }}
-    }
-}
-int blackorwhite(){
-   int blackorwhite = analogRead(FRONT_CHECK);
-     if (blackorwhite > 600) { 
-    return 0; 
-    }
-  else {
-   return 1;
-  }
-}
-void following(){ // following system
-  if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == LOW){
-      forwardComand();
-   }
-  else if (digitalRead(ir_one) == LOW && digitalRead(ir_two) == HIGH){
-    Serial.print("left");
-      leftComand();
-   }
-  else if (digitalRead(ir_one) == HIGH && digitalRead(ir_two) == LOW){
-    Serial.print("right");
-       rightComand();
-   }
-    else{
-         reset();
-    }
-    
 }
 void reset() {
   digitalWrite(IN1, LOW);
